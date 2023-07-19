@@ -53,7 +53,8 @@ function AuthPage() {
         setIsLoading(false);
         console.log(response)
         if (response.ok) {
-          history.replace("/completeprofilebuttonwindow");
+          
+          localStorage.getItem('isProfileComplete') === 'true' ? history.replace("/expensegenerator") : history.replace("/completeprofilebuttonwindow")
         }else{
           setIsError('sorry ! something went wrong')
         }

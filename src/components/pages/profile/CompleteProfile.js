@@ -29,6 +29,7 @@ function CompleteProfile() {
         userNameRef.current.value  = '';
         photoUrlRef.current.value = '';
         history.replace('/emailverification')
+        localStorage.setItem('isProfileComplete', true)
       }
     }catch(err){
       console.log(err)

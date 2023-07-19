@@ -21,6 +21,7 @@ const email = localStorage.getItem('email')
       );
       if(response.status === 200){
         setIsSent(true)
+       
       }
     } catch (err) {
       console.log(err);

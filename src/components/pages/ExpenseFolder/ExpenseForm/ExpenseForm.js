@@ -1,9 +1,19 @@
-import React,{useRef,useState,useContext} from 'react'
+import React,{useRef,useState,useContext, useEffect, Fragment} from 'react'
 import './ExpenseForm.css'
 import ExpenseFormContext from '../../../../contextStore/ExpenseFormContext/ExpenseFormContext'
+import { v4 as uuidv4 } from 'uuid';
+import EditButtonContext from '../../../../contextStore/EditButtonContext/EditButtonContext';
+import axios from 'axios';
+import LogoutButton from '../../AuthPage/LogoutButton';
+import { Link } from "react-router-dom/cjs/react-router-dom.min";
 function ExpenseForm() {
-  const {updateFormValues} = useContext(ExpenseFormContext)
+  const {formValuesChanged, updateFormValuesChanged} = useContext(ExpenseFormContext)
+  const {valuesObj} = useContext(EditButtonContext)
+  const [submitClicked, setSubmitClicked] = useState(false)
+  
+  const email = localStorage.getItem('email').replace('@','').replace('.','')
 const [formValues, setFormValues] = useState({
+
   description:'',
   amount:'',
   date:'',
@@ -16,7 +26,8 @@ const descriptionChangeHandler=(e)=>{
   setFormValues((prevObj)=>{
     return {
       ...prevObj,
-      description : e.target.value
+      description : e.target.value,
+    
     }
   })
 }
@@ -48,27 +59,69 @@ const debitOrCreditChangeHandler=(e)=>{
   setFormValues((prevObj)=>{
     return {
       ...prevObj,
-      debitOrCredit : e.target.value
+      debitOrCredit : e.target.value,
+      
     }
   })
+
+  
 }
 
-const submitHandler =(e)=>{
-  e.preventDefault();
+useEffect(()=>{
 
-  updateFormValues(formValues)
+  const submitHandler =async()=>{
+  
+    if(!formValues.description.trim()) return;
+    const id = uuidv4();
+    
+    // Add the ID to the form values
+    const formValuesWithId = {
+      ...formValues,
+      id: id
+    };
+    
+    try{
+      const response = await axios.post(`https://expense-tracker-134c6-default-rtdb.firebaseio.com/expenses/${email}.json`,{...formValuesWithId})
+    }catch(err){
+      console.log(err)
+    }
+    updateFormValuesChanged(!formValuesChanged)
+    
+    setFormValues({
+      description:'',
+      amount:'',
+      date:'',
+      category:'',
+      debitOrCredit:''
+    })
+    
+  }
+  submitHandler()
+},[submitClicked])
 
-  setFormValues({
-    description:'',
-    amount:'',
-    date:'',
-    category:'',
-    debitOrCredit:''
-  })
+useEffect(()=>{
  
-}
+      setFormValues({
+        description: valuesObj.expenseObj?.description || '',
+        date: valuesObj.expenseObj?.date || '',
+        amount: valuesObj.expenseObj?.amount || '',
+        debitOrCredit: valuesObj.expenseObj?.debitOrCredit || '',
+        category: valuesObj.expenseObj?.category || ''
+      })
+},[valuesObj])
+
   
   return (
+    <Fragment>
+<nav class="navbar navbar-expand-lg bg-body-tertiary d-flex justify-content-between">
+       
+
+       <Link style={{textDecoration:'none', color:'white'}} to='/'> <button class="btn  text-light bg-warning btn-outline-info m-1" >Home</button></Link>
+
+       <LogoutButton/>
+        
+</nav>
+   
     <div className='container-fluid bg-warning parentContainer' >
       
 
@@ -84,7 +137,10 @@ const submitHandler =(e)=>{
 
     <div class="card-body ">
     
-      <form onSubmit={submitHandler} id="bookingForm" action="#" method="" class="needs-validation" novalidate autocomplete="off">
+      <form onSubmit={(e)=>{
+          e.preventDefault();
+        setSubmitClicked(!submitClicked)
+      }} id="bookingForm" action="#" method="" class="needs-validation" novalidate autoComplete="on">
 
         <div class="form-group">
           <label for="inputName">Description</label>
@@ -125,6 +181,7 @@ const submitHandler =(e)=>{
 
               <select value={formValues.debitOrCredit} onChange={debitOrCreditChangeHandler}  class="form-control mr-1" id="category" required>
               
+              <option   >None</option>
               <option >Debit</option>
               <option >Credit</option>
               
@@ -136,7 +193,7 @@ const submitHandler =(e)=>{
        
         </div>
         </div>
-        <button class="btn btn-warning border border-dark btn-block col-lg-3 m-auto" type="submit">Add Expense</button>
+        <button class="btn btn-warning border border-dark btn-block col-lg-3 m-auto" type="submit" >Add Expense</button>
       </form>
      
     </div>
@@ -148,6 +205,7 @@ const submitHandler =(e)=>{
 
 
     </div>
+    </Fragment>
   )
 }
 

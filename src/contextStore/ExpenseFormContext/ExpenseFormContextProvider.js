@@ -4,15 +4,11 @@ import ExpenseFormContext from './ExpenseFormContext'
 
 function ExpenseFormContextProvider(props) {
 
-    const [formValues,setFormValues] = useState([]);
+    const [formValuesChanged,updateFormValuesChanged] = useState(false);
 
-    const updateFormValues = (data)=>{
-        setFormValues((prevArray)=>{
-            return [...prevArray, data]
-        })
-    }
+   
   return (
-    <ExpenseFormContext.Provider value={{formValues, updateFormValues}}>{props.children}</ExpenseFormContext.Provider>
+    <ExpenseFormContext.Provider value={{formValuesChanged,updateFormValuesChanged}}>{props.children}</ExpenseFormContext.Provider>
   )
 }
 
