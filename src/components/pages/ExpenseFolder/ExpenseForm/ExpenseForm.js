@@ -8,13 +8,14 @@ import { Link } from "react-router-dom/cjs/react-router-dom.min";
 import { useSelector } from 'react-redux/es/hooks/useSelector';
 import { useDispatch } from 'react-redux';
 import { updateExpense } from '../../../../ReduxStore/Slices/expenseActionManagerSlice';
-
+import { toggleTheme } from '../../../../ReduxStore/Slices/themeSlice';
 function ExpenseForm() {
   const obj = useSelector((state)=> state.expenseAction.expense)
-  const isEdit = useSelector((state)=> state.expenseAction.isEdit)
+  const isEdit = useSelector((state)=> state.expenseAction.isEdit);
+   const {darkMode} = useSelector((state)=> state.themeMode)
   const dispatch = useDispatch();
-  console.log(obj)
-  console.log(isEdit)
+ const darkStyle = 'bg-dark border border-2 border-warning text-light'
+
   const {formValuesChanged, updateFormValuesChanged} = useContext(ExpenseFormContext)
 
   const [submitClicked, setSubmitClicked] = useState(false)
@@ -142,10 +143,14 @@ useEffect(()=>{
   
   return (
     <Fragment>
-<nav class="navbar navbar-expand-lg bg-body-tertiary d-flex justify-content-between">
+<nav class={`navbar navbar-expand-lg bg-body-tertiary d-flex justify-content-between ${darkMode && darkStyle}`}>
        
 
-       <Link style={{textDecoration:'none', color:'white'}} to='/'> <button class="btn  text-light bg-warning btn-outline-info m-1" >Home</button></Link>
+<div>
+
+<Link style={{textDecoration:'none', color:'white'}} to='/'> <button className="btn  text-light bg-warning btn-outline-info m-1" >Home</button></Link>
+<button className="btn  text-light bg-warning btn-outline-info m-1" onClick={()=>dispatch(toggleTheme())}>{darkMode?'Light Mode':'Dark Mode'}</button>
+</div>
 
        <LogoutButton/>
         
@@ -154,7 +159,7 @@ useEffect(()=>{
     <div className='container-fluid bg-warning parentContainer' >
       
 
-  <div  class="text-center pt-5 bg-warning ">
+  <div  class={`text-center pt-5 ${darkMode ? darkStyle:'bg-warning'}` }>
     <img src="https://i.ibb.co/8cDgdFX/Logo.png" alt="network-logo" width="72" height="72" />
     <h2>Star Expense Tracker</h2>
     <p>
@@ -164,7 +169,7 @@ useEffect(()=>{
 
   <div class="card">
 
-    <div class="card-body ">
+    <div class={`card-body ${darkMode ? darkStyle:'bg-warning'} `}>
     
       <form onSubmit={(e)=>{
           e.preventDefault();

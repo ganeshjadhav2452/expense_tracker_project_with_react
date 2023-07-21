@@ -7,12 +7,14 @@ import premiumIcon from '../../../../assets/premium-quality.png'
 import { fetchDataFromServer } from '../../../../ReduxStore/Slices/initalExpenseData'
 import {  useSelector } from 'react-redux/es/hooks/useSelector'
 import { useDispatch } from 'react-redux'
+
 function ExpenseGenerator() {
    const { formValuesChanged } = useContext(ExpenseFormContext)
    const [credit,setCredit] = useState(0)
     const [debit,setDebit] = useState(0)
     const {data} = useSelector((state)=> state.expenseData)
-    
+    const {darkMode} = useSelector((state)=> state.themeMode)
+    const darkStyle = 'bg-dark border border-2 border-warning text-warning'
    useEffect(()=>{
     let dataCredit = 0;
     let dataDebit = 0;
@@ -40,12 +42,12 @@ const dispatch = useDispatch()
                 <ExpenseForm />
             </div>
 
-            <div className='container d-flex align-items-center bg-warning   p-3 ' style={{ borderRadius: '0.5rem' }}>
+            <div className={` container d-flex align-items-center ${darkMode ? darkStyle:'bg-warning '}  p-3 `} style={{ borderRadius: '0.5rem' }}>
                 
               
                 <div class="table-wrapper mr-3 w-75">
-                <h2 className='text-dark  fw-bold'>Expense Table</h2>
-                    <table class="fl-table">
+                <h2 className={`${darkMode?'text-warning ':'text-dark border border-dark'} fw-bold h3`}>Expense Table</h2>
+                    <table className={`fl-table ${darkMode?darkStyle:''}`}>
                         <thead>
                             <tr>
                                 <th>Date</th>
@@ -68,7 +70,7 @@ const dispatch = useDispatch()
                     </table>
                 </div>
              
-                <div className='  rounded  bg-light shadow w-25 d-flex flex-column align-items-center p-2 justify-content-center' style={{height:'14rem',boxShadow:'0px 35px 50px rgba( 0, 0, 0, 0.2 )'}}>
+                <div className={` border  rounded   shadow w-25 d-flex flex-column align-items-center p-2 justify-content-center ${darkMode?darkStyle + 'border-warning':'border-dark'}`} style={{height:'14rem',boxShadow:'0px 35px 50px rgba( 0, 0, 0, 0.2 )'}}>
                 {
                         credit + debit > 10000 && <button className='btn  rounded bg-warning  border-dark mb-1'>Activate <img className='premiumImg' src={premiumIcon}/></button>
                     }
