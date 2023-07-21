@@ -8,13 +8,13 @@ import ResetPassword from "./components/pages/profile/ResetPassword";
 import LandingPage from "./components/pages/landingPage/LandingPage";
 import ExpenseGenerator from "./components/pages/ExpenseFolder/ExpenseGenerator/ExpenseGenerator";
 import ExpenseFormContextProvider from "./contextStore/ExpenseFormContext/ExpenseFormContextProvider";
-import EditButtonContextProvider from "./contextStore/EditButtonContext/EditButtonContextProvider";
+
 
 function App() {
   return (
     <Router>
       <ExpenseFormContextProvider>
-        <EditButtonContextProvider>
+       
       <Fragment >
 
      
@@ -28,7 +28,7 @@ function App() {
         <Route  exact path='/resetpassword' component={ResetPassword}/>
         </Switch>
       </Fragment>
-      </EditButtonContextProvider>
+      
       </ExpenseFormContextProvider>
     </Router>
 

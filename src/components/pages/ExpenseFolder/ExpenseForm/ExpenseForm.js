@@ -1,14 +1,22 @@
-import React,{useRef,useState,useContext, useEffect, Fragment} from 'react'
+import React,{useState,useContext, useEffect, Fragment} from 'react'
 import './ExpenseForm.css'
 import ExpenseFormContext from '../../../../contextStore/ExpenseFormContext/ExpenseFormContext'
 import { v4 as uuidv4 } from 'uuid';
-import EditButtonContext from '../../../../contextStore/EditButtonContext/EditButtonContext';
 import axios from 'axios';
 import LogoutButton from '../../AuthPage/LogoutButton';
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import { useSelector } from 'react-redux/es/hooks/useSelector';
+import { useDispatch } from 'react-redux';
+import { updateExpense } from '../../../../ReduxStore/Slices/expenseActionManagerSlice';
+
 function ExpenseForm() {
+  const obj = useSelector((state)=> state.expenseAction.expense)
+  const isEdit = useSelector((state)=> state.expenseAction.isEdit)
+  const dispatch = useDispatch();
+  console.log(obj)
+  console.log(isEdit)
   const {formValuesChanged, updateFormValuesChanged} = useContext(ExpenseFormContext)
-  const {valuesObj} = useContext(EditButtonContext)
+
   const [submitClicked, setSubmitClicked] = useState(false)
   
   const email = localStorage.getItem('email').replace('@','').replace('.','')
@@ -71,7 +79,8 @@ useEffect(()=>{
 
   const submitHandler =async()=>{
   
-    if(!formValues.description.trim()) return;
+  if(!isEdit){
+     if(!formValues.description.trim()) return;
     const id = uuidv4();
     
     // Add the ID to the form values
@@ -96,19 +105,39 @@ useEffect(()=>{
     })
     
   }
-  submitHandler()
+  
+}
+
+
+
+  const updateHandler = async()=>{
+    if(isEdit){
+    const formValuesWithId = {
+      ...formValues,
+      id: obj.id,
+      serverId:obj.serverId
+    };
+
+   await dispatch(updateExpense(formValuesWithId))
+   updateFormValuesChanged(!formValuesChanged)
+
+  }
+
+  }
+  updateHandler()
+submitHandler()
 },[submitClicked])
 
 useEffect(()=>{
  
       setFormValues({
-        description: valuesObj.expenseObj?.description || '',
-        date: valuesObj.expenseObj?.date || '',
-        amount: valuesObj.expenseObj?.amount || '',
-        debitOrCredit: valuesObj.expenseObj?.debitOrCredit || '',
-        category: valuesObj.expenseObj?.category || ''
+        description: obj?.description || '',
+        date: obj?.date || '',
+        amount: obj?.amount || '',
+        debitOrCredit: obj?.debitOrCredit || '',
+        category: obj?.category || ''
       })
-},[valuesObj])
+},[obj])
 
   
   return (
@@ -193,7 +222,9 @@ useEffect(()=>{
        
         </div>
         </div>
-        <button class="btn btn-warning border border-dark btn-block col-lg-3 m-auto" type="submit" >Add Expense</button>
+        {!isEdit && <button class="btn btn-warning border border-dark btn-block col-lg-3 m-auto" type="submit" >Add Expense</button>}
+
+        {isEdit &&  <button class="btn btn-info border border-dark btn-block col-lg-3 m-auto" type="submit" >Update Expense</button>}
       </form>
      
     </div>

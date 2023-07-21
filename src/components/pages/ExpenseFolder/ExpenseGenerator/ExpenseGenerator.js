@@ -3,39 +3,35 @@ import ExpenseForm from '../ExpenseForm/ExpenseForm'
 import ExpenseItem from './ExpenseItem/ExpenseItem'
 import './ExpenseGenerator.css'
 import ExpenseFormContext from '../../../../contextStore/ExpenseFormContext/ExpenseFormContext'
-import axios from 'axios'
+import premiumIcon from '../../../../assets/premium-quality.png'
+import { fetchDataFromServer } from '../../../../ReduxStore/Slices/initalExpenseData'
+import {  useSelector } from 'react-redux/es/hooks/useSelector'
+import { useDispatch } from 'react-redux'
 function ExpenseGenerator() {
    const { formValuesChanged } = useContext(ExpenseFormContext)
-   const [fetchedData, setFetchedData] = useState([])
+   const [credit,setCredit] = useState(0)
+    const [debit,setDebit] = useState(0)
+    const {data} = useSelector((state)=> state.expenseData)
     
-    const email = localStorage.getItem('email').replace('@','').replace('.','')
+   useEffect(()=>{
+    let dataCredit = 0;
+    let dataDebit = 0;
+    for(let i = 0; i<data.length; i++){
 
-
-    const getExpenses = async()=>{
-            const  fetchedDataFromServer = []
-        try{
-            const response = await axios.get(`https://expense-tracker-134c6-default-rtdb.firebaseio.com/expenses/${email}.json`)
-
-            console.log(response.data)
-            for (const id in response.data) {
-                fetchedDataFromServer.push({
-                    serverId:id,
-                    ...response.data[id]
-                })
-              }
-            
-        }catch(err){
-            console.log(err)
-        }
-        // Check if the fetched data has changed before updating the state
-  
-        setFetchedData(fetchedDataFromServer)
-    
+        if(data[i].debitOrCredit === 'Credit') dataCredit += Number.parseInt(data[i].amount)
+        if(data[i].debitOrCredit === 'Debit') dataDebit += Number.parseInt(data[i].amount)
+        console.log(typeof data[i].amount  )
+        console.log(typeof dataCredit  )
     }
+    setCredit(dataCredit)
+    setDebit(dataDebit)
+   },[data])
+const dispatch = useDispatch()
+   
 
     useEffect(()=>{
        
-        getExpenses()
+        dispatch(fetchDataFromServer())
        
     },[formValuesChanged])
     return (
@@ -44,9 +40,11 @@ function ExpenseGenerator() {
                 <ExpenseForm />
             </div>
 
-            <div className='container bg-warning mt-3 mb-5  p-3 ' style={{ borderRadius: '0.5rem' }}>
-                <h2 className='text-dark fw-bold'>Expense Table</h2>
-                <div class="table-wrapper">
+            <div className='container d-flex align-items-center bg-warning   p-3 ' style={{ borderRadius: '0.5rem' }}>
+                
+              
+                <div class="table-wrapper mr-3 w-75">
+                <h2 className='text-dark  fw-bold'>Expense Table</h2>
                     <table class="fl-table">
                         <thead>
                             <tr>
@@ -60,9 +58,25 @@ function ExpenseGenerator() {
                             </tr>
                         </thead>
                         <tbody>
-                            {fetchedData.map((item) => <ExpenseItem  key={item.id} serverId={item.serverId} id={item.id} description={item.description} amount={item.amount} date={item.date} debitOrCredit={item.debitOrCredit} category={item.category} />)}
+                            {data.map((item) => {
+                              
+                                return (
+                                    <ExpenseItem  key={item.id} serverId={item.serverId} id={item.id} description={item.description} amount={item.amount} date={item.date} debitOrCredit={item.debitOrCredit} category={item.category} />
+                                )
+                            })}
                         </tbody>
                     </table>
+                </div>
+             
+                <div className='  rounded  bg-light shadow w-25 d-flex flex-column align-items-center p-2 justify-content-center' style={{height:'14rem',boxShadow:'0px 35px 50px rgba( 0, 0, 0, 0.2 )'}}>
+                {
+                        credit + debit > 10000 && <button className='btn  rounded bg-warning  border-dark mb-1'>Activate <img className='premiumImg' src={premiumIcon}/></button>
+                    }
+                    <h5>Realtime Expense </h5>
+                    <span className='text-success fw-bold h5 mt-1'>Credit ₹{credit}</span>
+                    <span className='text-danger fw-bold h5 mt-1'>Debit ₹{debit}</span>
+                    <hr className='bg-danger w-100 mt-0'/>
+                    <span className={` fw-bold h5 ${credit - debit <= 0? 'text-danger':'text-success'}`}>Total ₹{credit - debit}</span>
                 </div>
             </div>
         </div>
